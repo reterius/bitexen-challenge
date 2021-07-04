@@ -1,0 +1,17 @@
+# Virtual Environments
+/venv
+
+# Compiled Output
+__pycache__
+
+# IDEs and Editors
+.idea
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# Misc
+/log
+/static
+

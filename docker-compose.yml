@@ -1,0 +1,173 @@
+version: "3"
+services:
+  redis:
+    hostname: redis # ip bilgisi
+    container_name: redis
+    image: redis:5.0.8
+    command: redis-server --requirepass test123
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis_data:/data
+    restart: always
+
+  mongosingle:
+    hostname: mongosingle # ip bilgisi
+    container_name: mongosingle
+    image: mongo:4.0.4
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=Bh6+59Kms!23sCsx
+    command: mongod
+    volumes:
+      - ./mongodb_data/db:/data/db
+      - ./mongodb_data/configdb:/data/configdb
+      - ./mongodb_data/yedek/app_db:/data/db/yedek/app_db
+    expose:
+      - 27017
+    ports:
+      - 27017:27017
+    restart: always
+
+
+  rabbitmq-node1:
+    image: rabbitmq:3.8.3
+    container_name: rabbitmq-node1
+    hostname: rabbitmq-node1
+    restart: always
+    environment:
+      - RABBITMQ_ERLANG_COOKIE=${RABBITMQ_ERLANG_COOKIE}
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+      - RABBITMQ_DEFAULT_VHOST=${RABBITMQ_DEFAULT_VHOST}
+
+
+  rabbitmq-node2:
+    image: rabbitmq:3.8.3
+    container_name: rabbitmq-node2
+    hostname: rabbitmq-node2
+    restart: always
+    depends_on:
+      - rabbitmq-node1
+    environment:
+      - RABBITMQ_ERLANG_COOKIE=${RABBITMQ_ERLANG_COOKIE}
+    volumes:
+      - ./rabbit_data/cluster-entrypoint.sh:/usr/local/bin/cluster-entrypoint.sh
+    entrypoint: /usr/local/bin/cluster-entrypoint.sh
+
+
+  rabbitmq-node3:
+    image: rabbitmq:3.8.3
+    container_name: rabbitmq-node3
+    hostname: rabbitmq-node3
+    restart: always
+    depends_on:
+      - rabbitmq-node1
+    environment:
+      - RABBITMQ_ERLANG_COOKIE=${RABBITMQ_ERLANG_COOKIE}
+    volumes:
+      - ./rabbit_data/cluster-entrypoint.sh:/usr/local/bin/cluster-entrypoint.sh
+    entrypoint: /usr/local/bin/cluster-entrypoint.sh
+
+
+  rabbitmq-haproxy:
+    image: haproxy:1.7
+    hostname: rabbitmq-haproxy
+    container_name: rabbitmq-haproxy
+    restart: always
+    volumes:
+      - ./rabbit_data/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    depends_on:
+      - rabbitmq-node1
+      - rabbitmq-node2
+      - rabbitmq-node3
+    ports:
+      - 15672:15672
+      - 5672:5672
+      - 1936:1936
+
+  beat_move_data_to_db:
+    hostname: beat_move_data_to_db
+    command: 'sh -c ''export C_FORCE_ROOT="true" && git config --global http.sslverify false && pip install --index-url https://pypi.python.org/simple --upgrade --user pip && pip install wheel && pip install setuptools --upgrade --user && pip install --index-url https://pypi.python.org/simple -r requirement.txt && export APP_CONFIG=config/prod.yaml && celery -A worker worker --loglevel=INFO --concurrency=1 -Q beat_move_data_to_db  -n beat_move_data_to_db@%h'''
+    tty: true
+    image: 'bitnami/python:3.7.7-debian-10-r4'
+    working_dir: '/app'
+    volumes:
+      - './parser:/app'
+    restart: always
+    depends_on:
+      - redis
+      - mongosingle
+      - rabbitmq-haproxy
+
+
+  beat_calculate_statistics:
+    hostname: beat_calculate_statistics
+    command: 'sh -c ''export C_FORCE_ROOT="true" && git config --global http.sslverify false && pip install --index-url https://pypi.python.org/simple --upgrade --user pip && pip install wheel && pip install setuptools --upgrade --user && pip install --index-url https://pypi.python.org/simple -r requirement.txt && export APP_CONFIG=config/prod.yaml && celery -A worker worker --loglevel=INFO --concurrency=1 -Q beat_calculate_statistics  -n beat_calculate_statistics@%h'''
+    tty: true
+    image: 'bitnami/python:3.7.7-debian-10-r4'
+    working_dir: '/app'
+    volumes:
+      - './parser:/app'
+    restart: always
+    depends_on:
+      - redis
+      - mongosingle
+      - rabbitmq-haproxy
+
+
+  flower:
+    hostname: flower
+    command: 'sh -c ''export C_FORCE_ROOT="true" && git config --global http.sslverify false && pip install --index-url https://pypi.python.org/simple --upgrade --user pip && pip install wheel && pip install setuptools --upgrade --user && pip install --index-url https://pypi.python.org/simple -r requirement.txt && export APP_CONFIG=config/prod.yaml && celery -A worker flower --loglevel=info --address=0.0.0.0 --port=5555'''
+    tty: true
+    image: 'bitnami/python:3.7.7-debian-10-r4'
+    working_dir: '/app'
+    ports:
+      - '5555:5555'
+    volumes:
+      - './parser:/app'
+    restart: always
+    depends_on:
+      - redis
+      - mongosingle
+      - rabbitmq-haproxy
+
+
+  triger_job:
+    hostname: triger_job
+    command: 'sh -c ''export C_FORCE_ROOT="true"  && git config --global http.sslverify false  && pip install --index-url https://pypi.python.org/simple --upgrade pip && pip install wheel && pip install setuptools --upgrade && pip install --index-url https://pypi.python.org/simple -r requirement.txt && export APP_CONFIG=config/prod.yaml && celery --pidfile=/opt/celerybeat.pid -A worker beat --loglevel=info'''
+    image: 'bitnami/python:3.7.7-debian-10-r4'
+    working_dir: '/app'
+    volumes:
+      - './parser:/app'
+    restart: always
+    depends_on:
+      - redis
+      - mongosingle
+      - rabbitmq-haproxy
+      - beat_move_data_to_db
+      - beat_calculate_statistics
+
+
+
+  rest_api:
+    container_name: rest_api
+    hostname: rest_apif
+    tty: true
+    command: 'sh -c ''pip install --index-url https://pypi.python.org/simple --upgrade pip
+    && pip3 install wheel && pip install setuptools --upgrade
+    && pip install -r requirements.txt --user
+    && export APP_CONFIG=config/prod.conf
+    && python app.py'''
+    image: 'bitnami/python:3.7.7-debian-10-r4'
+    ports:
+      - '2222:2222'
+    volumes:
+      - './rest-api:/app'
+    restart: always
+    depends_on:
+      - mongosingle
+      - beat_move_data_to_db
+      - beat_calculate_statistics
+
+

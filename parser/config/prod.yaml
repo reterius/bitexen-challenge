@@ -1,0 +1,41 @@
+celery:
+    broker_url: amqp://rabbit-user:8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92@rabbitmq-haproxy:5672/
+    broker_pool_limit: 0
+    broker_connection_max_retries: 0
+    worker_disable_rate_limits: True
+    worker_beat_schedule:
+        beat_move_data_to_db:
+          {
+              task: tasks.beat_move_data_to_db,
+              schedule: 5
+          }
+        beat_calculate_statistics:
+          {
+              task: tasks.beat_calculate_statistics,
+              schedule: 60
+          }
+
+mongo_db:
+    dsn: mongodb://mongosingle:27017/app_db
+    db_name: app_db
+    connectTimeoutMS: 3600000
+    socketTimeoutMS: 3600000
+    username: root
+    password: Bh6+59Kms!23sCsx
+redis:
+    data_storage:
+        cache_status: True
+        general_object_cache_time_seconds: 86400
+        con:
+            host_dsn: redis
+            host_port: 6379
+            db: 0
+            password: test123
+bitexen:
+    api_url: https://www.bitexen.com/api/v1/order_book/BTCTRY/
+
+
+networks:
+  default:
+    # Use a custom driver
+    driver: custom-driver-1
