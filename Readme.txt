@@ -94,7 +94,7 @@ min_price, max_price, average_price ve total_volume tipindeki tüm istatistikler
 FLOWER MONITORING EKRANI İÇİN:
 http://localhost:5555/dashboard
 
-RABBİT MANAGEMENT EKRANI İÇİN AŞAĞIDAKİ KOMUTLARI TERMİNALDE ÇALIŞTIRIN VE ARDINDAN ŞURAYA GİDİN http://localhost:15672/:
+RABBİT MANAGEMENT EKRANI İÇİN AŞAĞIDAKİ KOMUTLARI TERMİNALDE ÇALIŞTIRIN VE ARDINDAN ŞURAYA GİDİN http://localhost:15672/
 - docker exec rabbitmq-node1 rabbitmq-plugins enable rabbitmq_management
 - docker exec rabbitmq-node2 rabbitmq-plugins enable rabbitmq_management
 - docker exec rabbitmq-node3 rabbitmq-plugins enable rabbitmq_management
