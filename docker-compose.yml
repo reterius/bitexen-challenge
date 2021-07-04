@@ -1,7 +1,7 @@
 version: "3"
 services:
   redis:
-    hostname: redis # ip bilgisi
+    hostname: 0.0.0.0 # ip bilgisi
     container_name: redis
     image: redis:5.0.8
     command: redis-server --requirepass test123
@@ -59,7 +59,7 @@ services:
   rabbitmq-node3:
     image: rabbitmq:3.8.3
     container_name: rabbitmq-node3
-    hostname: rabbitmq-node3
+    hostname: 0.0.0.0
     restart: always
     depends_on:
       - rabbitmq-node1
