@@ -59,7 +59,7 @@ services:
   rabbitmq-node3:
     image: rabbitmq:3.8.3
     container_name: rabbitmq-node3
-    hostname: 0.0.0.0
+    hostname: rabbitmq-node3
     restart: always
     depends_on:
       - rabbitmq-node1
@@ -72,7 +72,7 @@ services:
 
   rabbitmq-haproxy:
     image: haproxy:1.7
-    hostname: rabbitmq-haproxy
+    hostname: 0.0.0.0 # ip bilgisi
     container_name: rabbitmq-haproxy
     restart: always
     volumes:
