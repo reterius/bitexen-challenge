@@ -12,7 +12,7 @@ services:
     restart: always
 
   mongosingle:
-    hostname: 10.100.41.44 # ip bilgisi
+    hostname: 0.0.0.0 # ip bilgisi
     container_name: mongosingle
     image: mongo:4.0.4
     environment:
