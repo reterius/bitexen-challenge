@@ -109,6 +109,7 @@ TEKNİK MİMARİ:
     - Docker
     - Flask (Rest api)
     - Python
+    - Celery
 
 - Sistem çalışma mantığı: Aynı proje klasörü içinde "parser" ve "rest-api" adında 2 farklı proje bulunur. "parser" bitexen apiden datayı alıp db ye yazar ve db ye
 yazdığı bu veriler üzerinden istatistik hesaplamalarını yapıp, ilgili mongodb collectionuna yazar. docker-compose üzerindeki "beat_move_data_to_db" ve "beat_calculate_statistics"
