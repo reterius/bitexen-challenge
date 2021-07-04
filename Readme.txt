@@ -123,4 +123,21 @@ hemen sonra hesapladığı bu satırları "last_transactions" adlı collectionda
 artıracaktır. "beat_move_data_to_db" ve  "beat_calculate_statistics" adlı servisler 1 er concurrency ile çalışacak şekilde docker-compose üzerinden ayarlanmışlardır. Bu servislerin
 çalışma durumlarını flower üzerinden şu adresten http://localhost:5555/dashboard takip edebilirsiniz .
 
+İstatistikler:
+    - günlükler için her güne 1 satır
+    - haftalıklar için her haftaya 1 satır
+    - aylıklar için her aya bir satır
+olacak şekilde "statistics" adlı mongodb collectionunda tutulmaktadır.
+
+
+İstatistik satırlarında unique'liği "statistics" adlı collections'da bulunan şu 3 field ile sağlıyorum:
+    - stat_period
+    - stat_type
+    - date_key
+ date_key field'ı:
+    - Eğer istatistik satırının periyodu daily ise bu alanın değeri current_year|current_month|current_week|current_day olacak şekilde. örn; 2021|7|26|4
+    - Eğer istatistik satırının periyodu weekly ise bu alanın değeri current_year|current_month|current_week olacak şekilde. örn; 2021|7|26
+    - Eğer istatistik satırının periyodu monthly ise bu alanın değeri current_year|current_month olacak şekilde. örn; 2021|7
+
+
 
