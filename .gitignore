@@ -15,3 +15,6 @@ Thumbs.db
 /log
 /static
 
+/parser/celerybeat-schedule.bak
+/parser/celerybeat-schedule.dat
+/parser/celerybeat-schedule.dir
