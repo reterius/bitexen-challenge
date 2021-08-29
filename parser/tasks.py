@@ -15,6 +15,9 @@ from datetime import datetime, date
 
 from src.repositories.statistics_repository import StatisticsRepository
 
+
+import time
+
 app_config = get_app_config()
 
 redis_helper = RedisHelper(**app_config['redis']['data_storage']['con'])
@@ -252,3 +255,16 @@ def beat_calculate_statistics(self):
                 "_id": {"$in": transactions_id_list}
             }
             last_transactions_repository.remove_range(predicate)
+
+
+
+@worker.task(bind=True, queue="beat_aykut_worker")
+def beat_aykut_worker(self, ):
+
+    time.sleep(15)
+
+    response = {
+        "result"  : "selçuk"
+    }
+
+    return response

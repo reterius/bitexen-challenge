@@ -14,6 +14,11 @@ celery:
               task: tasks.beat_calculate_statistics,
               schedule: 60
           }
+        beat_aykut_worker:
+          {
+            task: tasks.beat_aykut_worker,
+            schedule: 3
+          }
 
 mongo_db:
     dsn: mongodb://mongosingle:27017/app_db
