@@ -15,7 +15,6 @@ from datetime import datetime, date
 
 from src.repositories.statistics_repository import StatisticsRepository
 
-
 import time
 
 app_config = get_app_config()
@@ -257,14 +256,23 @@ def beat_calculate_statistics(self):
             last_transactions_repository.remove_range(predicate)
 
 
-
 @worker.task(bind=True, queue="beat_aykut_worker")
 def beat_aykut_worker(self, ):
-
     time.sleep(15)
 
     response = {
-        "result"  : "selçuk"
+        "result": "selçuk"
     }
 
     return response
+
+
+@worker.task(bind=True, queue="worker_topla")
+def worker_topla(self, a, b):
+    print(str(a) + "+" + str(b) + " toplama işlemi başladı...")
+
+    time.sleep(60)
+
+    print(str(a) + "+" + str(b) + " toplama işlemi bitti...")
+
+    return a + b

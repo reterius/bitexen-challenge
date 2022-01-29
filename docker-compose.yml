@@ -129,6 +129,21 @@ services:
       - mongosingle
       - rabbitmq-haproxy
 
+  worker_topla:
+    hostname: worker_topla
+    command: 'sh -c ''export C_FORCE_ROOT="true" && git config --global http.sslverify false && pip install --index-url https://pypi.python.org/simple --upgrade --user pip && pip install wheel && pip install setuptools --upgrade --user && pip install --index-url https://pypi.python.org/simple -r requirement.txt && export APP_CONFIG=config/prod.yaml && celery -A worker worker --loglevel=INFO --concurrency=3 -Q worker_topla  -n worker_topla@%h'''
+    tty: true
+    image: 'bitnami/python:3.7.7-debian-10-r4'
+    working_dir: '/app'
+    volumes:
+      - './parser:/app'
+    restart: always
+    depends_on:
+      - redis
+      - mongosingle
+      - rabbitmq-haproxy
+
+
 
 
   flower:
